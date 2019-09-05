@@ -3,6 +3,7 @@ package com.example.filght.demo.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,8 @@ import com.example.filght.demo.enums.SortByEnum;
 import com.example.filght.demo.service.FlightService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.qos.logback.core.joran.action.Action;
+
 @Service
 public class FlightServiceImpl implements FlightService {
 
@@ -28,27 +31,22 @@ public class FlightServiceImpl implements FlightService {
 	private String business;
 
 	@Override
-	public List<Flight> getFlights(String sortBy, String order) {
+	public List<Flight> getFlights(String sortBy, String order, long start, long end, String keyword) {
 		List<Flight> flights = new ArrayList<Flight>();
 		Object cheapFlightsResponse = flightDao.getFlights(cheap);
 		List<CheapFlightDto> cheapFlights = null;
 		if (cheapFlightsResponse != null) {
 			cheapFlights = (List<CheapFlightDto>) cheapFlightsResponse;
-//			System.out.println(cheapFlights);
 		}
 		Object businessFlightsResponse = flightDao.getFlights(business);
 		List<BusinessFlightDto> businessFlights = null;
 		if (businessFlightsResponse != null) {
 			businessFlights = (List<BusinessFlightDto>) businessFlightsResponse;
-//			System.out.println(businessFlights);
 		}
 		ObjectMapper objectMapper = new ObjectMapper();
 		if (cheapFlights != null && !cheapFlights.isEmpty()) {
-//			cheapFlights.parallelStream().forEach(cheapFlight -> {
 			for (int i = 0; i < cheapFlights.size(); i++) {
-//				CheapFlightDto cheapFlight = (CheapFlightDto);
 				CheapFlightDto cheapFlight = objectMapper.convertValue(cheapFlights.get(i), CheapFlightDto.class);
-//				System.out.println(cheapFlight);
 				Flight flight = new Flight();
 				flight.setDeparture(cheapFlight.getRoute().split("-")[0]);
 				flight.setArrival(cheapFlight.getRoute().split("-")[1]);
@@ -56,14 +54,11 @@ public class FlightServiceImpl implements FlightService {
 				flight.setArrivalTime(new Date(cheapFlight.getArrival() * 1000));
 				flights.add(flight);
 			}
-//			});
 		}
 		if (businessFlights != null && !businessFlights.isEmpty()) {
-//			businessFlights.parallelStream().forEach(businessFlight -> {
 			for (int i = 0; i < businessFlights.size(); i++) {
 				BusinessFlightDto businessFlight = objectMapper.convertValue(businessFlights.get(i),
 						BusinessFlightDto.class);
-//				System.out.println(businessFlight);
 				Flight flight = new Flight();
 				flight.setDeparture(businessFlight.getDeparture());
 				flight.setArrival(businessFlight.getArrival());
@@ -71,9 +66,19 @@ public class FlightServiceImpl implements FlightService {
 				flight.setArrivalTime(new Date(businessFlight.getArrivalTime() * 1000));
 				flights.add(flight);
 			}
-//			});
 		}
+		flights.stream().forEach(action ->{
+			System.out.println("Arrival"+action.getArrival());
+			System.out.println("Departure"+action.getDeparture());
+		});
+		// Code for searching based on keyword
+		if(keyword != "*")
+			flights = flights.stream().filter(item -> item.getArrival().toString().trim().contains(keyword)
+					|| item.getDeparture().toString().trim().contains(keyword)).collect(Collectors.toList());
+		// Code for searching based on keyword
 		sortFlights(sortBy, order, flights);
+		if (start != -1 && end != -1 && start < flights.size() && end < flights.size())
+			flights = flights.subList((int) start - 1, (int) end - 1);
 		return flights;
 	}
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.filght.demo.dto.Flight;
 import com.example.filght.demo.enums.OrderEnum;
 import com.example.filght.demo.enums.SortByEnum;
+import com.example.filght.demo.exceptions.InvalidPaginationParameter;
 import com.example.filght.demo.exceptions.InvalidSortParameterException;
 import com.example.filght.demo.service.FlightService;
 
@@ -20,14 +21,23 @@ public class FlightDemoRest {
 
 	@Autowired
 	FlightService flightService;
-	
+
 	@GetMapping("/list")
-	public List<Flight> getFlights(@RequestParam("sortBy") String sortBy,@RequestParam("order") String order) throws InvalidSortParameterException {
-		if(!SortByEnum.equals(sortBy))
-			throw new InvalidSortParameterException("invalid sort parameter please use arrivaltime or departuretime or arrival or departure.");
-		else if(!OrderEnum.equals(order))
+	public List<Flight> getFlights(@RequestParam(name = "sortBy", defaultValue = "arrivalTime") String sortBy,
+			@RequestParam(name = "order", defaultValue = "asc") String order,
+			@RequestParam(name = "start", defaultValue = "-1") long start,
+			@RequestParam(name = "end", defaultValue = "-1") long end,
+			@RequestParam(name = "keyword", defaultValue = "*") String keyword)
+			throws InvalidSortParameterException, InvalidPaginationParameter {
+		if (!SortByEnum.equals(sortBy))
+			throw new InvalidSortParameterException(
+					"invalid sort parameter please use arrivaltime or departuretime or arrival or departure.");
+		else if (!OrderEnum.equals(order))
 			throw new InvalidSortParameterException("invalid sort parameter please use asc or desc");
-		return flightService.getFlights(sortBy,order);
+		else if (start != -1 && end != -1 && end <= start) {
+			throw new InvalidPaginationParameter("end must be greater than start");
+		}
+		return flightService.getFlights(sortBy, order, start, end, keyword);
 	}
 
 }
