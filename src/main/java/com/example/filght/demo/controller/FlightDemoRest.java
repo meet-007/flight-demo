@@ -5,9 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.filght.demo.dto.Flight;
+import com.example.filght.demo.enums.SortByEnum;
+import com.example.filght.demo.exceptions.InvalidSortParameterException;
 import com.example.filght.demo.service.FlightService;
 
 @RestController
@@ -18,8 +21,10 @@ public class FlightDemoRest {
 	FlightService flightService;
 	
 	@GetMapping("/list")
-	public List<Flight> getFlights() {
-		return flightService.getFlights();
+	public List<Flight> getFlights(@RequestParam("sortBy") String sortBy,@RequestParam("order") String order) throws InvalidSortParameterException {
+		if(!SortByEnum.equals(sortBy))
+			throw new InvalidSortParameterException("invalid sort parameter");
+		return flightService.getFlights(sortBy,order);
 	}
 
 }
