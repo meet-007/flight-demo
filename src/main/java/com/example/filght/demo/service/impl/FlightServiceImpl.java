@@ -1,13 +1,10 @@
 package com.example.filght.demo.service.impl;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +64,8 @@ public class FlightServiceImpl implements FlightService {
 				Flight flight = new Flight();
 				flight.setDeparture(cheapFlight.getRoute().split("-")[0]);
 				flight.setArrival(cheapFlight.getRoute().split("-")[1]);
-				flight.setDepartureTime(new Date(cheapFlight.getDeparture() * 1000));
-				flight.setArrivalTime(new Date(cheapFlight.getArrival() * 1000));
+				flight.setDepartureTime(new Date(Duration.ofSeconds(cheapFlight.getDeparture()).toMillis()));
+				flight.setArrivalTime(new Date(Duration.ofSeconds(cheapFlight.getArrival()).toMillis()));
 				flights.add(flight);
 			}
 		}
@@ -83,8 +80,8 @@ public class FlightServiceImpl implements FlightService {
 				Flight flight = new Flight();
 				flight.setDeparture(businessFlight.getDeparture());
 				flight.setArrival(businessFlight.getArrival());
-				flight.setDepartureTime(new Date(businessFlight.getDepartureTime() * 1000));
-				flight.setArrivalTime(new Date(businessFlight.getArrivalTime() * 1000));
+				flight.setDepartureTime(new Date(Duration.ofSeconds(businessFlight.getDepartureTime()).toMillis()));
+				flight.setArrivalTime(new Date(Duration.ofSeconds(businessFlight.getArrivalTime()).toMillis()));
 				flights.add(flight);
 			}
 		}
@@ -115,36 +112,33 @@ public class FlightServiceImpl implements FlightService {
 	 */
 	private void sortFlights(String sortBy, String order, List<Flight> flights) {
 		if (sortBy.equalsIgnoreCase(SortByEnum.departure.toString())) {
+			// sort by departure
 			if (order.equalsIgnoreCase(OrderEnum.ASC.toString())) {
 				flights.sort(Comparator.comparing(Flight::getDeparture));
 			} else {
 				flights.sort(Comparator.comparing(Flight::getDeparture).reversed());
 			}
 		} else if (sortBy.equalsIgnoreCase(SortByEnum.arrival.toString())) {
+			// sort by arrival
 			if (order.equalsIgnoreCase(OrderEnum.ASC.toString())) {
 				flights.sort(Comparator.comparing(Flight::getArrival));
 			} else {
 				flights.sort(Comparator.comparing(Flight::getArrival).reversed());
 			}
 		} else if (sortBy.equalsIgnoreCase(SortByEnum.departureTime.toString())) {
+			// sort by departureTime
 			if (order.equalsIgnoreCase(OrderEnum.ASC.toString())) {
 				flights.sort(Comparator.comparing(Flight::getDepartureTime));
 			} else {
 				flights.sort(Comparator.comparing(Flight::getDepartureTime).reversed());
 			}
 		} else if (sortBy.equalsIgnoreCase(SortByEnum.arrivalTime.toString())) {
+			// sort by arrivalTime
 			if (order.equalsIgnoreCase(OrderEnum.ASC.toString())) {
 				flights.sort(Comparator.comparing(Flight::getArrivalTime));
 			} else {
 				flights.sort(Comparator.comparing(Flight::getArrivalTime).reversed());
 			}
 		}
-	}
-
-	private void formatTime(Long time) {
-		LocalDateTime dateTime = LocalDateTime.ofEpochSecond(time, 0, ZoneOffset.UTC);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss", Locale.US);
-		String formattedDate = dateTime.format(formatter);
-		System.out.println(formattedDate);
 	}
 }
