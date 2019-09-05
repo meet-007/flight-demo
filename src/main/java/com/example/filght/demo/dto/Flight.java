@@ -1,8 +1,8 @@
-package com.example.demo.dto;
+package com.example.filght.demo.dto;
 
 import java.util.Date;
 
-public class FlightResponse {
+public class Flight {
 	private String departure;
 	private String arrival;
 	private Date departureTime;
