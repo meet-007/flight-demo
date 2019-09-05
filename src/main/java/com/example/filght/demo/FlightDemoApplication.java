@@ -12,9 +12,14 @@ public class FlightDemoApplication {
 		SpringApplication.run(FlightDemoApplication.class, args);
 	}
 
+	/**
+	 * RestTemplate initialization for rest call
+	 * 
+	 * @return
+	 */
 	@Bean
 	RestTemplate getRestTemplate() {
 		return new RestTemplate();
 	}
-	
+
 }

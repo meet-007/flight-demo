@@ -14,9 +14,17 @@ import com.example.filght.demo.service.FlightService;
 @RequestMapping("/flights")
 public class FlightDemoRest {
 
+	// service instance
 	@Autowired
 	FlightService flightService;
-	
+
+	/**
+	 * get the list of the flights
+	 *
+	 * @param keyword
+	 *            to filter
+	 * @return list of flights
+	 */
 	@GetMapping("/list")
 	public List<Flight> getFlights() {
 		return flightService.getFlights();
