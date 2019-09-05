@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.filght.demo.dto.Flight;
+import com.example.filght.demo.enums.OrderEnum;
 import com.example.filght.demo.enums.SortByEnum;
 import com.example.filght.demo.exceptions.InvalidSortParameterException;
 import com.example.filght.demo.service.FlightService;
@@ -23,7 +24,9 @@ public class FlightDemoRest {
 	@GetMapping("/list")
 	public List<Flight> getFlights(@RequestParam("sortBy") String sortBy,@RequestParam("order") String order) throws InvalidSortParameterException {
 		if(!SortByEnum.equals(sortBy))
-			throw new InvalidSortParameterException("invalid sort parameter");
+			throw new InvalidSortParameterException("invalid sort parameter please use arrivaltime or departuretime or arrival or departure.");
+		else if(!OrderEnum.equals(order))
+			throw new InvalidSortParameterException("invalid sort parameter please use asc or desc");
 		return flightService.getFlights(sortBy,order);
 	}
 
