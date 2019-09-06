@@ -37,7 +37,8 @@ public class FlightServiceImpl implements FlightService {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Flight> getFlights(String sortBy, String order, long start, long end, String keyword) {
+	public List<Flight> getFlights(String sortBy, String order, long start, long end, String keyword, String filterBy,
+			Date from, Date to) {
 		List<Flight> flights = new ArrayList<Flight>();
 
 		// get cheap flights
@@ -86,10 +87,24 @@ public class FlightServiceImpl implements FlightService {
 			}
 		}
 
-		// Code for searching based on keyword
+		// Code for searching based on keyword (filter by departure or arrival)
 		if (!"*".endsWith(keyword)) {
 			flights = flights.stream().filter(item -> item.getArrival().toString().trim().contains(keyword)
 					|| item.getDeparture().toString().trim().contains(keyword)).collect(Collectors.toList());
+		}
+
+		// code to filter date range from and to for departureTime and
+		// arrivalTime
+		if (!filterBy.isEmpty() && null != from && null != to) {
+			if (SortByEnum.arrivalTime.equals(filterBy)) {
+				flights = flights.stream()
+						.filter(item -> item.getArrivalTime().after(from) && item.getArrivalTime().before(to))
+						.collect(Collectors.toList());
+			} else if (SortByEnum.departureTime.equals(filterBy)) {
+				flights = flights.stream()
+						.filter(item -> item.getDepartureTime().after(from) && item.getDepartureTime().before(to))
+						.collect(Collectors.toList());
+			}
 		}
 
 		// Code to sort by field
